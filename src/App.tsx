@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { Vehicle, VehicleFilter, VehicleType } from "./data/vehicles/contracts";
+import { VehicleApi } from "./data/vehicles/api";
+import { Filter } from "./components/Filter";
+import { Table } from "./components/Table";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const initialFilter: VehicleFilter = {
+    title: "",
+    type: null
+};
+
+export default function App() {
+    const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+
+    const [title, setTitle] = useState('')
+    const [vehicleType, setVehicleType] = useState<VehicleType | null>(null)
+
+    useEffect(() => {
+        initialFilter.title = title
+        initialFilter.type = vehicleType
+        const data = VehicleApi.search(initialFilter);
+        setVehicles(data);
+    }, [title, vehicleType]);
+
+    let titleChange : React.ChangeEventHandler<HTMLInputElement> = (e : any) => setTitle(e.target.value)
+    let onTypeChange : any = (e : VehicleType | null) => setVehicleType(e)
+    return (
+        <>
+            <Filter titleChangeHandler={titleChange} typeChangeHandler={onTypeChange} type = {vehicleType} />
+            <Table vehicles={vehicles} />
+        </>
+    );
 }
-
-export default App;
